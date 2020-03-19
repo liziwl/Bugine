@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+
+    {% include 'header.html' %}
+    <script src="{{ url_for('static', filename='js/jquery.form.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/moment.js') }}"></script>
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<div class="container">
+    <h2>Query issue</h2>
+    <p class="lead">Submit query request, select excluded app(s)</p>
+    <div class="input-group-text">
+        <form class="a_form" id='issue-token-form' action="" method=post>
+            <p>
+            <div>
+                <input name='csv_token' id="csv-token" type="text" value="" size="34" placeholder="Description token">
+            </div>
+            </p>
+
+            <fieldset>
+                <legend>Except application</legend>
+                <ul class="checkbox">
+                    {% for file in ext_files %}
+                        <li><input type="checkbox" name="{{ file.id }}" id="{{ file.id }}" value="{{ file.val }}"/>
+                            <label for="{{ file.id }}">{{ file.text }}</label></li>
+                    {% endfor %}
+                </ul>
+            </fieldset>
+            <button type="submit" class="btn btn-primary">Query</button>
+        </form>
+    </div>
+    <div id="result-div" style="visibility: hidden">
+        <div id="fail-div" style="display: none">
+            <p class="tip"><span id="message"></span></p>
+        </div>
+        <div id="succ-div" style="visibility: hidden">
+            <div id='copy-bt-div'>
+                <label id="job-time"></label><br>
+                <input id="download-token" type="text" value="" readonly="readonly" size="38">
+                <button id="copy-bt" class="btn btn-outline-success" onclick="copyToClipboard()">Copy token</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyToClipboard() {
+        $("#download-token").select();
+        document.execCommand("copy");
+    }
+
+    $(function () {
+        /** 表单验证逻辑 **/
+        $("#issue-token-form").ajaxForm(function (data) {
+            $("#result-div").css("visibility", "visible");
+            if (data.code == 200) {
+                $("#fail-div").css("display", "none");
+                $("#download-filename").html(data.name);
+                $('#succ-div').css("visibility", "visible");
+                $("#job-time").html("Created query at "+ moment(data["timestamp"]).format('MMM D YYYY, k:mm:ss [GMT]Z'));
+                $("#download-token").attr("value", data["job-token"]);
+            } else {
+                $("#fail-div").css("display", "");
+                $("#message").html(data.message);
+                $('#succ-div').css("visibility", "hidden");
+                $("#download-token").attr("value", "");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

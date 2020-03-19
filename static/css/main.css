@@ -1,0 +1,58 @@
+html {
+    font-size: 14px;
+}
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.container {
+    max-width: 960px;
+}
+
+.pricing-header {
+    max-width: 700px;
+}
+
+.card-deck .card {
+    min-width: 220px;
+}
+
+.a_form {
+    width: 100%;
+}
+
+.input-group {
+    margin-bottom: .5rem;
+}
+
+ul.checkbox li {
+    border: 1px transparent solid;
+    display:inline-block;
+    width: 30%;
+}
+
+.input-group-text fieldset {
+    text-align: left;
+    white-space: normal;
+}
+
+#copy-bt-div {
+    margin-top: .5rem;
+}
+
+#result-div {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10rem;
+}
+
+#loading-div {
+    width: 100%;
+    text-align: center;
+}
+
+#job-meta-tb{
+    margin: 1rem;
+}

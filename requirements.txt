@@ -1,0 +1,18 @@
+# web
+Flask
+pypinyin
+celery
+redis
+
+# bugine-model
+ngram
+nltk
+pyhumps
+numpy
+
+# crawler
+PySocks
+requests
+
+pip-chill
+pylint

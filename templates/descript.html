@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+
+    {% include 'header.html' %}
+    <script src="{{ url_for('static', filename='js/jquery.form.js') }}"></script>
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<div class="container">
+    <h2>Generate description</h2>
+    <p class="lead">Parsing Zip compressed source code from GitHub, generating description file</p>
+    <div class="input-group">
+        <form class="a_form" id='upload-form' action="" method=post enctype=multipart/form-data>
+            <p></p>
+            <div class="custom-file">
+                <input type="file" name=file class="custom-file-input" id="customFile" accept=".zip">
+                <label class="custom-file-label" for="customFile">Choose Zip file</label>
+            </div>
+            <p></p>
+            <button type="submit" class="btn btn-primary" style="float: right;">Submit</button>
+        </form>
+    </div>
+    <div id="result-div" style="visibility: hidden">
+        <div id="fail-div" style="display: none">
+            <p class="tip"><span id="message"></span></p>
+        </div>
+        <div id="succ-div" style="visibility: hidden">
+            <div id='down-bt-div'>
+                <a id="download-path" href="" class="btn btn-outline-info">Download</a>
+                <label id="download-filename"></label>
+            </div>
+            <div id='copy-bt-div'>
+                <button id="copy-bt" class="btn btn-outline-success" onclick="copyToClipboard()">Copy token</button>
+                <input id="download-token" type="text" value="" readonly="readonly" size="34">
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script>
+    function copyToClipboard() {
+        $("#download-token").select();
+        document.execCommand("copy");
+    }
+
+    $(".custom-file-input").on("change", function () {
+        var fileName = $(this).val().split("\\").pop();
+        if (fileName == '') {
+            $(this).siblings(".custom-file-label").removeClass("selected").html("Choose Zip file");
+        } else {
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        }
+    });
+
+    $("#upload-form").bind("submit", function () {
+        var file = $("#customFile").val();
+        if (file == "") {
+            alert("No file selected.");
+            return false;
+        }
+    });
+
+    $(function () {
+        /** 表单验证逻辑 **/
+        $("#upload-form").ajaxForm(function (data) {
+            $("#result-div").css("visibility", "visible");
+            if (data.code == 200) {
+                $("#fail-div").css("display", "none");
+                $("#download-filename").html(data.name);
+                $('#succ-div').css("visibility", "visible");
+                $("#download-path").attr("href", data.path);
+                $("#download-token").attr("value", data.token);
+            } else {
+                $("#fail-div").css("display", "");
+                $("#message").html("Zip parse failed.");
+                $('#succ-div').css("visibility", "hidden");
+                $("#download-path").attr("href", "");
+                $("#download-token").attr("value", "");
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

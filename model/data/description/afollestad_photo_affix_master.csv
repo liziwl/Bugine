@@ -1,0 +1,11 @@
+activity_main,FrameLayout,content_loading_progress_frame
+activity_main,androidx.appcompat.widget.Toolbar,appbar_toolbar
+activity_main,ProgressBar,content_loading_progress_bar
+activity_main,Button,affixButton
+activity_main,ImageView,expandButton
+activity_main,com.afollestad.photoaffix.viewcomponents.SettingsLayout,settingsLayout
+activity_main,androidx.recyclerview.widget.RecyclerView,list
+activity_main,TextView,empty
+griditem_photo,com.afollestad.photoaffix.viewcomponents.SquareImageView,image
+griditem_photo,com.afollestad.photoaffix.viewcomponents.CircleView,circle
+griditem_photo,ImageView,check

@@ -1,0 +1,13 @@
+tmp/
+uploads/
+downloads/
+
+.idea/
+__pycache__/
+venv/
+.vscode/
+
+log/
+
+tmp.txt
+test.py

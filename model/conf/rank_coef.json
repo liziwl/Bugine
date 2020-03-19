@@ -1,0 +1,36 @@
+{
+  "app_sim_w": 200,
+  "scale_max": 3,
+  "data": {
+    "hit_hot_words": {
+      "coef": 100
+    },
+    "hit_label": {
+      "coef": 800
+    },
+    "hit_title_overlap": {
+      "coef": 1000
+    },
+    "hit_title_all": {
+      "coef": 500
+    },
+    "hit_body_num": {
+      "coef": 1000
+    },
+    "hit_body_all": {
+      "coef": 500
+    },
+    "closed": {
+      "coef": 200
+    },
+    "reply_num": {
+      "coef": 800
+    },
+    "commit_id": {
+      "coef": 300
+    },
+    "body_len": {
+      "coef": 500
+    }
+  }
+}

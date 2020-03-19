@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+
+    {% include 'header.html' %}
+    <script src="{{ url_for('static', filename='js/jquery.form.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/humanize-duration.js') }}"></script>
+    <script src="//cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+    <link href="//cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/moment.js') }}"></script>
+
+</head>
+<body>
+
+{% include 'nav.html' %}
+
+<div class="container">
+    <h2>Result</h2>
+    <p class="lead">Checking query status, retrieving query result. <br>Query needs 1 - 2 min(s). If the server is busy, it takes more time.</p>
+    <div class="input-group-text">
+        <form class="a_form" id='query-token-form' action="" method=post>
+            <p>
+            <div>
+                <input name='job_token' id="job-token" type="text" value="" size="38" placeholder="Job token">
+            </div>
+            </p>
+            <button type="submit" class="btn btn-primary">Show status / Retrieve Results</button>
+        </form>
+    </div>
+
+    <div id="loading-div" style="display: none">
+        <img src="{{ url_for('static', filename='blocks.svg') }}">
+    </div>
+
+    <div id="result-div">
+        <div id="fail-div" style="display: none">
+            <label id="message"></label><br>
+        </div>
+
+        <div id="succ-div" style="display: none">
+            <div id="job-meta-tb">
+                <div class='row'>
+                    <div class='col-md-6'>
+                        <span id='job-meta-name'></span>
+                    </div>
+                    <div class='col-md-6'>
+                        <span id='job-stat'></span>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='col-md-3'>
+                        <span id='create-time'></span>
+                    </div>
+                    <div class='col-md-3'>
+                        <span id='done-time'></span>
+                    </div>
+                    <div class='col-md-6'>
+                        <span id='duration'></span>
+                    </div>
+                </div>
+            </div>
+
+            <div id='result-tb-div' style="visibility: hidden">
+                <table class="table table-striped" id='result-tb'>
+                    <thead>
+                    <tr>
+                        <th scope="col">Rank</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Retrieved issue</th>
+                    </tr>
+                    </thead>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setupLoading(flag) {
+        if (flag){
+            $("#loading-div").css("display", "");
+            $("#fail-div").css("display", "none");
+            $("#succ-div").css("display", "none");
+        }else{
+            $("#loading-div").css("display", "none");
+        }
+    }
+
+    function setupJob_meta(flag) {
+        if (flag){
+            $("#fail-div").css("display", "none");
+            $('#succ-div').css("display", "");
+        }else{
+            $("#fail-div").css("display", "");
+            $('#succ-div').css("display", "none");
+            $("#result-tb-div").css("visibility", "hidden");
+        }
+    }
+
+    function show_data(data) {
+        $("#job-meta-name").html(data.name);
+
+        var start = new Date(data["create-time"]);
+        $("#create-time").html("Created at " + moment(data["create-time"]).format('MMM D, k:mm:ss'));
+
+        if (data.code == 201) {
+            // 正在运行
+            $("#job-stat").html("Running");
+            $("#done-time").html("");
+            $("#duration").html("Passed time: " + humanizeDuration(new Date() - start));
+        }
+
+        if (data.code == 202) {
+            // 运行完毕
+            $("#result-tb-div").css("visibility", "visible");
+            $("#job-stat").html("Finished");
+
+            var end = new Date(data["done-time"]);
+            $("#done-time").html("Finished at " + moment(data["done-time"]).format('MMM D, k:mm:ss'));
+            $("#duration").html("Used time: " + humanizeDuration(end - start));
+            $('#result-tb').DataTable({
+                "data": data.data,
+                "lengthMenu": [[25, 50], [25, 50]],
+                "destroy": true,
+                "columnDefs": [{
+                    "targets": 2,
+                    "render": function (data, type, row, meta) {
+                        var f_row = data.split("/");
+                        var f_name = f_row[3] + "/" + f_row[4] + " #" + f_row[6]
+                        return '<a href="' + data + '" target="_blank" title="' + f_name + '">' + f_name + '</a>'
+                    }
+                }],
+            });
+        }
+    }
+
+    function ajax_request() {
+        $.ajax({
+            url: "/result?token=" + $("#loading-div").data("job_token"),
+            type: "get",
+            dataType: 'json',
+            success: function(xhr_data) {
+                console.log(xhr_data);
+                setupJob_meta(true);
+                $("#result-tb-div").css("visibility", "hidden");
+                show_data(xhr_data);
+                if (xhr_data.code == 201) {
+                    setTimeout(function() { ajax_request(); }, 1000);
+                    // wait 1 seconds than call ajax request again
+                } else{
+                    setupLoading(false);
+                }
+            }
+        });
+    }
+    
+    $(function () {
+        /** 表单验证逻辑 **/
+        $("#query-token-form").ajaxForm({
+            beforeSubmit : function(arr, $form, options){
+                setupLoading(true);
+                $("#loading-div").data("job_token", arr[0].value);
+            },
+            success : function (data) {
+                setupLoading(false);
+                if (data.code < 400) {
+                    // 正在运行 or 运行完毕
+                    setupJob_meta(true);
+                    show_data(data);
+                    if (data.code == 201) {
+                        ajax_request();
+                        $("#loading-div").css("display", "");
+                    }
+                } else {
+                    // 输入错误
+                    setupJob_meta(false);
+                    $("#message").html(data.message);
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
