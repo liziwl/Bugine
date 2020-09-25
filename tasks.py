@@ -3,8 +3,8 @@ from celery.result import AsyncResult
 from model import util
 from api import descript, query_issue, sort_result_table, get_out
 
-brokers = 'redis://127.0.0.1:6379/2'
-backend = 'redis://127.0.0.1:6379/3'
+brokers = 'redis://:mypass@127.0.0.1:6379/2'
+backend = 'redis://:mypass@127.0.0.1:6379/3'
 
 cel_app = Celery('tasks', broker=brokers, backend=backend)
 cel_app.conf.timezone = 'Asia/Shanghai'
@@ -36,5 +36,5 @@ def job_get_byid(id):
         f_data.append(tmp)
     return {
         'data': f_data,
-        'date_done': res.date_done + "+00:00"
+        'date_done': str(res.date_done) + "+00:00"
     }

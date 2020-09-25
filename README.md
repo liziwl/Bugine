@@ -11,6 +11,11 @@
 sudo apt-get update
 sudo apt-get install redis-server
 
+# set redis password
+sudo vim /etc/redis/redis.conf
+# add a line: "requirepass mypass"
+systemctl restart redis-server.service
+
 # setup python env
 pip install virtualenv
 virtualenv venv
@@ -22,9 +27,13 @@ python setup_nltk.py
 # if above fail to run
 tar zxvf nltk_data.tar.gz -C ~
 
+# run celery Broker
+celery -A tasks worker --loglevel=info
 # run web-server
 python app.py
 
 # access
 http://127.0.0.1:5000
+# or
+http://YOUR_SERVER_IP:5000
 ```

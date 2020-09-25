@@ -11,7 +11,7 @@ import redis
 import ast
 
 pp = util.PrintWarp()
-r = redis.StrictRedis(host='127.0.0.1', port=6379, db=1, decode_responses=True)
+r = redis.StrictRedis(host='127.0.0.1', password='mypass', port=6379, db=1, decode_responses=True)
 
 
 # api使用顺序
